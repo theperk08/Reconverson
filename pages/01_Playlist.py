@@ -2,6 +2,10 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import numpy as np
+import json
+
+delete_img = 'https://i.ibb.co/tXhVw3k/delete.png'
+
 
 if "select_genre" in st.session_state:
     del(st.session_state.select_genre)
@@ -10,6 +14,7 @@ if "select_music" in st.session_state:
 
 conn = sqlite3.connect('list.bdd')
 
+resultats = []
 
 # INIT FONCTION 
 def add_logo():
@@ -36,7 +41,10 @@ def delete_track_from_playlist(conn, track_id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM playlist WHERE track_id = ?", (track_id,))
     conn.commit()
-
+def get_sound_urls(id):
+    track_info = df_cover.loc[df_cover['track_id'] == id, 'son_url']
+    if type(track_info.iloc[0]) == str:
+        st.audio(track_info.iloc[0])
 add_logo()
 
 # Afficher la playlist
@@ -49,6 +57,7 @@ df_bd = pd.DataFrame(playlist, columns=['id', 'track_id', 'more'])
 
 df = pd.read_csv('DataFrame_Musique.csv')
 df_cover = pd.read_csv('df_img.csv')
+df_sound = pd.read_csv('df_sound.csv')
 
 #### CRE LA LIST LIKE ID
 likeId = []
@@ -86,12 +95,39 @@ for i in range(len(likeId)):
         st.image(ligne['image_url'])     
     with col2:
         st.subheader(ms_to_minsec(ligne['duration_ms']))
+        get_sound_urls(ligne['track_id'])
     with col3:
         st.subheader(ligne['track_name'])
     with col4:
         if st.button('unlike', key=ligne['track_id']):
             delete_track_from_playlist(conn, ligne['track_id'])
-            st.write('Effacé')
+            st.write(f"""<img src="{delete_img}" width="15px"> """, unsafe_allow_html=True)
 
+# Convertir la ligne en un dictionnaire sérialisable en JSON
+    dict_ligne = {}
+    ligne = ligne.astype(str)
+    for col in ligne.index:
+        # Convertir les valeurs Pandas en types de données Python nativement sérialisables en JSON
+        if pd.isna(ligne[col]):
+            dict_ligne[col] = None
+        elif isinstance(ligne[col], (pd.Timestamp, pd._libs.tslibs.nattype.NaTType)):
+            dict_ligne[col] = str(ligne[col])
+        elif isinstance(ligne[col], pd.Categorical):
+            dict_ligne[col] = str(ligne[col].item())
+        else:
+            dict_ligne[col] = ligne[col]
+
+    # Ajouter le dictionnaire de la ligne dans la liste des résultats
+    resultats.append(dict_ligne)
+
+# Convertir la liste des dictionnaires en un objet JSON
+json_str = json.dumps(resultats)
+
+# Écrire l'objet JSON dans un fichier
+with open("resultats.json", "w") as f:
+    f.write(json_str)
+
+with st.expander("Afficher le contenu du JSON"):
+    st.write(json.loads(json_str))
 
 conn.close()

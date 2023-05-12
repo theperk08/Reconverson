@@ -6,6 +6,7 @@ import sqlite3
 
 curl = 'https://open.spotify.com/track/'
 heart = 'img/heart.png'
+check = 'https://i.ibb.co/thyXK5c/check.png'
 
 if "select_genre" in st.session_state:
     del(st.session_state.select_genre)
@@ -53,11 +54,17 @@ def is_like(conn, track_id):
         return False
     else:
         return True
-    
+
+def get_sound_urls(id):
+    track_info = df.loc[df['track_id'] == id, 'son_url']
+    if type(track_info.iloc[0]) == str:
+        st.audio(track_info.iloc[0])
+     
 db_conn = create_playlist_db("list.bdd")
 add_logo()
 # Chargement du dataframe
 df = pd.read_csv('df_img.csv')
+df_sound = pd.read_csv('df_sound.csv')
 
 st.header('Lucky SoundTrack')
 st.subheader('Découvre tes artistes grâce au hasard')
@@ -79,6 +86,7 @@ if "fortune" in st.session_state:
         html_code = f'<a href="{url}">Ecouter sur spotify</a>'
         st.markdown(html_code, unsafe_allow_html=True)
         ###############################################
+        get_sound_urls(df[df['image_url'] == ii]['track_id'].iloc[0])
         if is_like(db_conn, df[df['image_url'] == ii]['track_id'].iloc[0]):
                 st.image(heart, width=15)    
         else:
@@ -99,7 +107,7 @@ if "fortune" in st.session_state:
 
             if st.button("like"):
                 add_track_to_playlist(db_conn, df[df['image_url'] == ii]['track_id'].iloc[0])
-                st.write('Ajouter à playlist')
+                st.write(f"""<img src="{check}" width="15px"> """, unsafe_allow_html=True)
     
 else:
     col1, col2, col3 = st.columns([1, 3, 1])
@@ -122,3 +130,15 @@ else:
             # Si le bouton "Arrêter" est cliqué, on sort de la boucle infinie
             break
         df = pd.read_csv('df_img.csv')  # rechargement du dataframe pour recommencer à la première ligne
+
+
+
+
+
+
+
+
+
+
+
+
