@@ -105,8 +105,12 @@ def get_track_name(id):
         return 'Titre introuvable' 
 
 def get_sound_urls(id):
-    track_info = sp.track(id)
-    return track_info['preview_url']
+    track_info = df_sound.loc[df_sound['id'] == id, 'son_url']
+    if type(track_info.iloc[0]) == str:
+        return track_info.iloc[0]
+    
+    #track_info = sp.track(id)
+    #return track_info['preview_url']
     
 def row_5(list_):
 
@@ -139,6 +143,9 @@ def row_5(list_):
                 if st.button("like", key=list_[0]):
                     add_track_to_playlist(db_conn, list_[0])
                     st.write('Ajouter à playlist')
+                ## MODIF
+                url_sound = get_sound_urls(list_[0])
+                st.audio(url_sound)
                 #st.audio(get_sound_urls(list_[0]))
 
             if len(list_)>1:
@@ -270,6 +277,7 @@ add_logo()
 db_conn = create_playlist_db("list.bdd")
 df = pd.read_csv('DataFrame_Musique.csv')
 df_cover = pd.read_csv('df_img.csv')
+df_sound = pd.read_csv('df_sound.csv')
 
 #st.write(df_cover)
 
