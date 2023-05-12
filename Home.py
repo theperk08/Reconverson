@@ -19,6 +19,7 @@ curl = 'https://open.spotify.com/track/'
 heart = 'img/heart.png'
 cover_false = 'https://i.ibb.co/ZWSPvxB/nf.png'
 radio_ets = 'img/radio.png'
+check = 'https://i.ibb.co/thyXK5c/check.png'
 btn_music = []
 btn_genre = []
 
@@ -105,15 +106,9 @@ def get_track_name(id):
         return 'Titre introuvable' 
 
 def get_sound_urls(id):
-    track_info = df_sound.loc[df_sound['id'] == id, 'son_url']
-    st.write(track_info)
-    if type(track_info.iloc[0]) != '':
-        return track_info.iloc[0]
-    else:
-        st.write('erreur')
-    
-    #track_info = sp.track(id)
-    #return track_info['preview_url']
+    track_info = df_cover.loc[df_cover['track_id'] == id, 'son_url']
+    if type(track_info.iloc[0]) == str:
+        st.audio(track_info.iloc[0])
     
 def row_5(list_):
 
@@ -125,31 +120,32 @@ def row_5(list_):
             st.markdown(html_code, unsafe_allow_html=True)
         with col2:
             st.write("""<span style="font-size:15px; font-weight:bold">""",raccourcir_chaine(get_track_name(list_[0])),"""<span>""", unsafe_allow_html=True)
-            if is_like(db_conn, list_[0]):
-                st.image(heart, width=15)
-            else:
-                m = st.markdown("""
-                <style>
-                div.stButton > button:first-child {
-                    background: #E02800;
-                    border: none;
-                    color: white;
-                    font-size: 9px;
-                    padding: 2px 5px;
-                }
-                div.stButton > button:first-child:hover{
-                    border:none;
-                    background: #901A00;
-                }
-                </style>""", unsafe_allow_html=True)
+        
+            collike, colson = st.columns([2,8])
+            with collike:
+                if is_like(db_conn, list_[0]):
+                    st.image(heart, width=15)
+                else:
+                    m = st.markdown("""
+                    <style>
+                    div.stButton > button:first-child {
+                        background: #E02800;
+                        border: none;
+                        color: white;
+                        font-size: 9px;
+                        padding: 2px 5px;
+                    }
+                    div.stButton > button:first-child:hover{
+                        border:none;
+                        background: #901A00;
+                    }
+                    </style>""", unsafe_allow_html=True)
 
-                if st.button("like", key=list_[0]):
-                    add_track_to_playlist(db_conn, list_[0])
-                    st.write('Ajouter à playlist')
-                ## MODIF
-                url_sound = get_sound_urls(list_[0])
-                st.audio(url_sound)
-                #st.audio(get_sound_urls(list_[0]))
+                    if st.button("like", key=list_[0]):
+                        add_track_to_playlist(db_conn, list_[0])
+                        st.write(f"""<img src="{check}" width="15px"> """, unsafe_allow_html=True)
+                with colson:
+                    get_sound_urls(list_[0])
 
             if len(list_)>1:
                 with col3:
@@ -159,28 +155,31 @@ def row_5(list_):
 
                 with col4:
                     st.write("""<span style="font-size:15px; font-weight:bold">""",raccourcir_chaine(get_track_name(list_[1])),"""<span>""", unsafe_allow_html=True)
-                    #st.audio(get_sound_urls(list_[1]))
-                    if is_like(db_conn, list_[1]):
-                        st.image(heart, width=15)
-                    else:
-                        m = st.markdown("""
-                        <style>
-                        div.stButton > button:first-child {
-                            background: #E02800;
-                            border: none;
-                            color: white;
-                            font-size: 9px;
-                            padding: 2px 5px;
-                        }
-                        div.stButton > button:first-child:hover{
-                            border:none;
-                            background: #901A00;
-                        }
-                        </style>""", unsafe_allow_html=True)
+                    collike, colson = st.columns([2,8])
+                    with collike:
+                        if is_like(db_conn, list_[1]):
+                            st.image(heart, width=15)
+                        else:
+                            m = st.markdown("""
+                            <style>
+                            div.stButton > button:first-child {
+                                background: #E02800;
+                                border: none;
+                                color: white;
+                                font-size: 9px;
+                                padding: 2px 5px;
+                            }
+                            div.stButton > button:first-child:hover{
+                                border:none;
+                                background: #901A00;
+                            }
+                            </style>""", unsafe_allow_html=True)
 
-                        if st.button("like", key=list_[1]):
-                            add_track_to_playlist(db_conn, list_[1])
-                            st.write('Ajouter à playlist')
+                            if st.button("like", key=list_[1]):
+                                add_track_to_playlist(db_conn, list_[1])
+                                st.write(f"""<img src="{check}" width="15px"> """, unsafe_allow_html=True)
+                    with colson:
+                        get_sound_urls(list_[1])
                     
 def row_top(list_):
 
@@ -191,8 +190,7 @@ def row_top(list_):
             html_code = f'<a href="{curl+list_[0]}"><img width="250px" src="{img_urls}"></a>'
             # Affichage du code HTML
             st.markdown(html_code, unsafe_allow_html=True)
-            #url_sound = get_sound_urls(list_[0])
-            #st.audio(url_sound)
+            get_sound_urls(list_[0])
             if is_like(db_conn, list_[0]):
                 st.image(heart, width=15)
             else:
@@ -213,15 +211,14 @@ def row_top(list_):
 
                 if st.button("like", key=list_[0]):
                     add_track_to_playlist(db_conn, list_[0])
-                    st.write('Ajouter à playlist')
+                    st.write(f"""<img src="{check}" width="15px"> """, unsafe_allow_html=True)
         if len(list_)>1:
             with col2:
                 img_urls = get_image_urls(list_[1])
                 html_code = f'<a href="{curl+list_[1]}"><img width="250px" src="{img_urls}"></a>'
                 # Affichage du code HTML
                 st.markdown(html_code, unsafe_allow_html=True)      
-                #url_sound = get_sound_urls(list_[1])
-                #st.audio(url_sound)
+                get_sound_urls(list_[1])
                 if is_like(db_conn, list_[1]):
                     st.image(heart, width=15)
                 else:
@@ -242,7 +239,7 @@ def row_top(list_):
 
                     if st.button("like", key=list_[1]):
                         add_track_to_playlist(db_conn, list_[1])
-                        st.write('Ajouter à playlist')
+                        st.write(f"""<img src="{check}" width="15px"> """, unsafe_allow_html=True)
                 
             if len(list_)>2:
                 with col3:
@@ -250,8 +247,7 @@ def row_top(list_):
                     html_code = f'<a href="{curl+list_[2]}"><img width="250px" src="{img_urls}"></a>'
                     # Affichage du code HTML
                     st.markdown(html_code, unsafe_allow_html=True)
-                    #url_sound = get_sound_urls(list_[2])
-                    #st.audio(url_sound)
+                    get_sound_urls(list_[2])
                     if is_like(db_conn, list_[2]):
                         st.image(heart, width=15)
                     else:
@@ -272,7 +268,7 @@ def row_top(list_):
 
                         if st.button("like", key=list_[2]):
                             add_track_to_playlist(db_conn, list_[2])
-                            st.write('Ajouter à playlist')
+                            st.write(f"""<img src="{check}" width="15px"> """, unsafe_allow_html=True)
 
 # END FONCITON $
 add_logo()
@@ -303,7 +299,6 @@ if reco_by == 'Filtres':
     f_bpm = st.sidebar.slider('BPM',30, 300, (100, 200)) # bpm == tempo
     f_r = st.sidebar.slider('Nombre de resultat', 15, 100)
     # slide one point sur popularity
-    # test dancabilitytytytuyuytu
     btn_genre = st.sidebar.button('RECHERCHE')
 
 if reco_by == 'Select Music':
