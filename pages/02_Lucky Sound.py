@@ -60,7 +60,7 @@ add_logo()
 df = pd.read_csv('df_img.csv')
 
 st.header('Lucky SoundTrack')
-st.subheader('Découvre tes artistes grâce au hazard')
+st.subheader('Découvre tes artistes grâce au hasard')
 
 if "fortune" in st.session_state:
     ii = st.session_state.fortune
