@@ -106,7 +106,7 @@ def get_track_name(id):
 
 def get_sound_urls(id):
     track_info = df_sound.loc[df_sound['id'] == id, 'son_url']
-    st.write(type(track_info))
+    st.write(track_info)
     if type(track_info.iloc[0]) != '':
         return track_info.iloc[0]
     else:
